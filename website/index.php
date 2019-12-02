@@ -198,8 +198,10 @@
                             if($link === false){
                                 die("ERROR: Could not connect. " . mysqli_connect_error());
                             }
+                            echo "test";
                             $sql = "SELECT * FROM Firmen";
                             if($result = mysqli_query($link, $sql)){
+                              echo "test1";
                                 if(mysqli_num_rows($result) > 0){
                                     echo "<table>";
                                         echo "<tr>";
