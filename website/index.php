@@ -197,10 +197,12 @@
                                             echo "<th>Name</th>";
                                             echo "<th>Ersteller</th>";
                                             echo "<th>Erstelldatum</th>";
+                                            echo "<th>&Auml;nderungsdatum</th>";
                                         echo "</tr>";
                                     while($row = mysqli_fetch_array($result)){
                                         echo "<tr>";
                                             echo "<td>" . $row['ID'] . "</td>";
+                                            echo "<td>" . $row['Name'] . "</td>";
                                             echo "<td>" . $row['Ersteller'] . "</td>";
                                             echo "<td>" . gmdate("Y-m-d\TH:i:s\Z", $row['Erstelldatum']) . "</td>";
                                             echo "<td>" . gmdate("Y-m-d\TH:i:s\Z", $row['Aenderungsdatum']) . "</td>";
