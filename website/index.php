@@ -192,8 +192,8 @@
                             </script>
                             <!-- Marker einfügen -->
                             <script>
-                              <?php
-                                echo "var marker = L.marker([48.89203335,10.1925753437142]).addTo(Karte);"
+                            <?php
+                            echo "var marker = L.marker([48.89203335,10.1925753437142]).addTo(Karte);";
                             $link = mysqli_connect("localhost", "luca", "LiviT2005", "praktikumsbewertung");
                             if($link === false){
                                 die("ERROR: Could not connect. " . mysqli_connect_error());
