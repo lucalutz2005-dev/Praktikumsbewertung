@@ -202,8 +202,8 @@
                                         echo "<tr>";
                                             echo "<td>" . $row['ID'] . "</td>";
                                             echo "<td>" . $row['Ersteller'] . "</td>";
-                                            echo "<td>" . gmdate("Y-m-d\TH:i:s\Z", $row['Erstelldatum']); . "</td>";
-                                            echo "<td>" . gmdate("Y-m-d\TH:i:s\Z", $row['Aenderungsdatum']); . "</td>";
+                                            echo "<td>" . gmdate("Y-m-d\TH:i:s\Z", $row['Erstelldatum']) . "</td>";
+                                            echo "<td>" . gmdate("Y-m-d\TH:i:s\Z", $row['Aenderungsdatum']) . "</td>";
                                         echo "</tr>";
                                     }
                                     echo "</table>";
