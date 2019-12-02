@@ -194,16 +194,16 @@
                                     echo "<table>";
                                         echo "<tr>";
                                             echo "<th>id</th>";
-                                            echo "<th>first_name</th>";
-                                            echo "<th>last_name</th>";
-                                            echo "<th>email</th>";
+                                            echo "<th>Name</th>";
+                                            echo "<th>Ersteller</th>";
+                                            echo "<th>Erstelldatum</th>";
                                         echo "</tr>";
                                     while($row = mysqli_fetch_array($result)){
                                         echo "<tr>";
                                             echo "<td>" . $row['ID'] . "</td>";
-                                            echo "<td>" . $row['first_name'] . "</td>";
-                                            echo "<td>" . $row['last_name'] . "</td>";
-                                            echo "<td>" . $row['email'] . "</td>";
+                                            echo "<td>" . $row['Ersteller'] . "</td>";
+                                            echo "<td>" . gmdate("Y-m-d\TH:i:s\Z", $row['Erstelldatum']); . "</td>";
+                                            echo "<td>" . gmdate("Y-m-d\TH:i:s\Z", $row['Aenderungsdatum']); . "</td>";
                                         echo "</tr>";
                                     }
                                     echo "</table>";
