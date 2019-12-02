@@ -181,7 +181,46 @@
                     </div><!-- /.card-header -->
                     <div class="card-body">
                       <div class="tab-content p-0">
-                      <div id='meineKarte' style='height: 800px; width: 100%;'></div>
+
+                        <?php
+                      $link = mysqli_connect("localhost", "luca", "LiviT2005", "praktikumsbewertung");
+                            if($link === false){
+                                die("ERROR: Could not connect. " . mysqli_connect_error());
+                            }
+                            $sql = "SELECT * FROM Firmen";
+                            if($result = mysqli_query($link, $sql)){
+                                if(mysqli_num_rows($result) > 0){
+                                    echo "<table>";
+                                        echo "<tr>";
+                                            echo "<th>id</th>";
+                                            echo "<th>Name</th>";
+                                            echo "<th>Ersteller</th>";
+                                            echo "<th>Erstelldatum</th>";
+                                            echo "<th>&Auml;nderungsdatum</th>";
+                                        echo "</tr>";
+                                    while($row = mysqli_fetch_array($result)){
+                                        echo "<tr><th>";
+                                            echo "var marker = L.marker([" . $row['Laengengrad'] . "," . $row['Breitengrad'] . "]).addTo(Karte);";
+                                            #echo "<td>" . $row['Name'] . "</td>";
+                                            #echo "<td>" . $row['Ersteller'] . "</td>";
+                                            #echo "<td>" . gmdate("Y-m-d\TH:i:s\Z", $row['Erstelldatum']) . "</td>";
+                                            #echo "<td>" . gmdate("Y-m-d\TH:i:s\Z", $row['Aenderungsdatum']) . "</td>";
+                                        echo "</th></tr>";
+                                    }
+                                    echo "</table>";
+                                    // Free result set
+                                    mysqli_free_result($result);
+                                } else{
+                                    echo "No records matching your query were found.";
+                                }
+                            } else{
+                                echo "ERROR: Could not able to execute $sql. " . mysqli_error($link);
+                            }
+                            mysqli_close($link);
+                            echo "var marker = L.marker([48.89203335,10.1925753437142]).addTo(Karte);";
+                            ?>
+
+                            <div id='meineKarte' style='height: 800px; width: 100%;'></div>
                             <!-- OSM-Basiskarte einfügen und zentrieren -->
                             <script type='text/javascript'>
                                var Karte = L.map('meineKarte').setView([48.8845159, 10.1878466], 15);
@@ -192,44 +231,8 @@
                             </script>
                             <!-- Marker einfügen -->
                             <script>
-                        <?php
-                      $link = mysqli_connect("localhost", "luca", "LiviT2005", "praktikumsbewertung");
-                            if($link === false){
-                                #die("ERROR: Could not connect. " . mysqli_connect_error());
-                            }
-                            $sql = "SELECT * FROM Firmen";
-                            if($result = mysqli_query($link, $sql)){
-                                if(mysqli_num_rows($result) > 0){
-                                    /*echo "<table>";
-                                        echo "<tr>";
-                                            echo "<th>id</th>";
-                                            echo "<th>Name</th>";
-                                            echo "<th>Ersteller</th>";
-                                            echo "<th>Erstelldatum</th>";
-                                            echo "<th>&Auml;nderungsdatum</th>";
-                                        echo "</tr>";*/
-                                    while($row = mysqli_fetch_array($result)){
-                                        #echo "<tr>";
-                                            echo "var marker = L.marker([" . $row['Laengengrad'] . "," . $row['Breitengrad'] . "]).addTo(Karte);";
-                                            #echo "<td>" . $row['Name'] . "</td>";
-                                            #echo "<td>" . $row['Ersteller'] . "</td>";
-                                            #echo "<td>" . gmdate("Y-m-d\TH:i:s\Z", $row['Erstelldatum']) . "</td>";
-                                            #echo "<td>" . gmdate("Y-m-d\TH:i:s\Z", $row['Aenderungsdatum']) . "</td>";
-                                        #echo "</tr>";
-                                    }
-                                    #echo "</table>";
-                                    // Free result set
-                                    mysqli_free_result($result);
-                                } else{
-                                    #echo "No records matching your query were found.";
-                                }
-                            } else{
-                                #echo "ERROR: Could not able to execute $sql. " . mysqli_error($link);
-                            }
-                            mysqli_close($link);
-                            echo "var marker = L.marker([48.89203335,10.1925753437142]).addTo(Karte);";
-                            ?>
                             </script>
+
                       </div>
 
                     </div><!-- /.card-body -->
