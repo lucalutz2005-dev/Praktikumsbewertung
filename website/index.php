@@ -181,20 +181,8 @@
                     </div><!-- /.card-header -->
                     <div class="card-body">
                       <div class="tab-content p-0">
-                            <div id='meineKarte' style='height: 800px; width: 100%;'></div>
-                            <!-- OSM-Basiskarte einfügen und zentrieren -->
-                            <script type='text/javascript'>
-                               var Karte = L.map('meineKarte').setView([48.8845159, 10.1878466], 15);
-                               L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                               'attribution':  'Kartendaten &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> Mitwirkende',
-                               'useCache': true
-                               }).addTo(Karte);
-                            </script>
-                            <!-- Marker einfügen -->
-                            <script>
-                            <?php
-                            echo "var marker = L.marker([48.89203335,10.1925753437142]).addTo(Karte);";
-                            $link = mysqli_connect("localhost", "luca", "LiviT2005", "praktikumsbewertung");
+                        <?php
+                      $link = mysqli_connect("localhost", "luca", "LiviT2005", "praktikumsbewertung");
                             if($link === false){
                                 die("ERROR: Could not connect. " . mysqli_connect_error());
                             }
@@ -229,8 +217,23 @@
                             }
                             mysqli_close($link);
                             ?>
+                            <div id='meineKarte' style='height: 800px; width: 100%;'></div>
+                            <!-- OSM-Basiskarte einfügen und zentrieren -->
+                            <script type='text/javascript'>
+                               var Karte = L.map('meineKarte').setView([48.8845159, 10.1878466], 15);
+                               L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                               'attribution':  'Kartendaten &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> Mitwirkende',
+                               'useCache': true
+                               }).addTo(Karte);
+                            </script>
+                            <!-- Marker einfügen -->
+                            <script>
+                            <?php
+                            echo "var marker = L.marker([48.89203335,10.1925753437142]).addTo(Karte);";
+                            ?>
                             </script>
                       </div>
+
                     </div><!-- /.card-body -->
                   </div>
                   <!-- /.card -->
