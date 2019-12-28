@@ -175,7 +175,7 @@ include("includes/login/login_check.php");
                         <div class="col-lg-12">
                             <div class="content-panel">
                                 <h4><i class="fa fa-angle-right"></i> Praktikumsangebote</h4>
-                                <h6>Bitte eine Firma ausw&auml;hlen</h6>
+                                <h6>Um die verf&uuml;gbaren Praktikumsstellen zu sehen w&auml;hlen sie bitte eine Firma aus.</h6>
                                 <section id="unseen">
                                     <table class="table table-bordered table-striped table-condensed">
                                         <thead>
@@ -184,13 +184,13 @@ include("includes/login/login_check.php");
                                                 <th>Name des Berufs</th>
                                                 <th>Berufsgruppe</th>
                                                 <th class="numeric">Bewertungen</th>
-                                                <!--<th class="numeric">&empty; Bewertung</th>-->
+                                                <th class="numeric">&empty; Bewertung</th>
                                                 
-                                                <th class="numeric">&empty; Personalabteilung</th>
-                                                <th class="numeric">&empty; Arbeitsumfeld</th>
-                                                <th class="numeric">&empty; Individualit&auml;t</th>
-                                                <th class="numeric">&empty; Inhalt</th>
-                                                <th class="numeric">&empty; Soziale Leistungen</th>
+                                                <!--<th class="numeric">Personalabteilung</th>
+                                                <th class="numeric">Arbeitsumfeld</th>
+                                                <th class="numeric">Individualit&auml;t</th>
+                                                <th class="numeric">Inhalt</th>
+                                                <th class="numeric">Soziale Leistungen</th>-->
 
                                                 <th>Tags</th>
                                                 <th>Bewerbungsdaten</th>
@@ -219,22 +219,25 @@ include("includes/login/login_check.php");
                                                         $result1 = mysqli_query($db1, $sql);
                                                         if(mysqli_num_rows($result1) > 0) {
                                                             $durchlauf = 0;
-                                                            while($row = mysqli_fetch_array($result1)) {
-                                                                $Bewertung_1 += $row["Bewertung_1"];
-                                                                $Bewertung_2 += $row["Bewertung_2"];
-                                                                $Bewertung_3 += $row["Bewertung_3"];
-                                                                $Bewertung_4 += $row["Bewertung_4"];
-                                                                $Bewertung_5 += $row["Bewertung_5"];
+                                                            while($row5 = mysqli_fetch_array($result1)) {
+                                                                $Bewertung_1 += $row5["Bewertung_1"];
+                                                                $Bewertung_2 += $row5["Bewertung_2"];
+                                                                $Bewertung_3 += $row5["Bewertung_3"];
+                                                                $Bewertung_4 += $row5["Bewertung_4"];
+                                                                $Bewertung_5 += $row5["Bewertung_5"];
                                                                 $durchlauf = $durchlauf + 1;
                                                             }
-                                                            echo $Bewertung_1/$durchlauf . "<br />";
-                                                            echo $Bewertung_2/$durchlauf . "<br />";
-                                                            echo $Bewertung_3/$durchlauf . "<br />";
-                                                            echo $Bewertung_4/$durchlauf . "<br />";
-                                                            echo $Bewertung_5/$durchlauf . "<br />";
+                                                            /*echo "<td>" . $Bewertung_1/$durchlauf . "</td>";
+                                                            echo "<td>" . $Bewertung_2/$durchlauf . "</td>";
+                                                            echo "<td>" . $Bewertung_3/$durchlauf . "</td>";
+                                                            echo "<td>" . $Bewertung_4/$durchlauf . "</td>";
+                                                            echo "<td>" . $Bewertung_5/$durchlauf . "</td>";*/
+                                                            $summe = $Bewertung_1/$durchlauf + $Bewertung_2/$durchlauf + $Bewertung_3/$durchlauf + $Bewertung_4/$durchlauf + $Bewertung_5/$durchlauf;
+                                                            $durchschnitt = ($summe / 5);
+                                                            echo "<td><center>" . $durchschnitt . "</center>1 = <i class='far fa-heart'></i>, 6 = <i class='fas fa-bomb'></i>" . "</td>";
                                                         }
                                                         
-                                                        echo "<td>" . $row["DurchschnittlicheBewertung"] . "</td>"; 
+                                                        #echo "<td>" . $row["DurchschnittlicheBewertung"] . "</td>"; 
                                                         echo "<td>" . $row["Tags"] . "</td>"; 
                                                         $sql = "SELECT EMail FROM Firmen WHERE ID = '".$row["Firmen_ID"]."';";
                                                         $result = mysqli_query($db1, $sql);
