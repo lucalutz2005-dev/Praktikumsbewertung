@@ -10,4 +10,8 @@ $verbindung = new mysqli(DB_Server, DB_Benutzer, DB_Passwort, DB_Name, DB_Port);
 if($verbindung === false){
     die("FEHLER: Kann nicht verbinden. " . mysqli_connect_error());
 }
+
+$db1 = mysqli_connect(DB_Server, DB_Benutzer, DB_Passwort) or die("Unable to connect to MySQL2");
+mysqli_select_db($db1 , DB_Name);
+
 ?>

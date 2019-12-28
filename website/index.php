@@ -1,3 +1,6 @@
+<?php
+header("location: firmenliste.php")
+?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -7,26 +10,26 @@
   <!-- Tell the browser to be responsive to screen width -->
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- Font Awesome -->
-  <link rel="stylesheet" href="plugins/fontawesome-free/css/all.min.css">
+  <link rel="stylesheet" href="librarys/fontawesome-free/css/all.min.css">
   <!-- Ionicons -->
   <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
   <!-- Tempusdominus Bbootstrap 4 -->
-  <link rel="stylesheet" href="plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
+  <link rel="stylesheet" href="librarys/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
   <!-- iCheck -->
-  <link rel="stylesheet" href="plugins/icheck-bootstrap/icheck-bootstrap.min.css">
+  <link rel="stylesheet" href="librarys/icheck-bootstrap/icheck-bootstrap.min.css">
   <!-- JQVMap -->
-  <link rel="stylesheet" href="plugins/jqvmap/jqvmap.min.css">
+  <link rel="stylesheet" href="librarys/jqvmap/jqvmap.min.css">
   <!-- Theme style -->
   <link rel="stylesheet" href="assets/css/adminlte.min.css">
   <!-- overlayScrollbars -->
-  <link rel="stylesheet" href="plugins/overlayScrollbars/css/OverlayScrollbars.min.css">
+  <link rel="stylesheet" href="librarys/overlayScrollbars/css/OverlayScrollbars.min.css">
   <!-- Daterange picker -->
-  <link rel="stylesheet" href="plugins/daterangepicker/daterangepicker.css">
+  <link rel="stylesheet" href="librarys/daterangepicker/daterangepicker.css">
   <!-- summernote -->
-  <link rel="stylesheet" href="plugins/summernote/summernote-bs4.css">
+  <link rel="stylesheet" href="librarys/summernote/summernote-bs4.css">
   <!-- Google Font: Source Sans Pro -->
   <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
-
+  <script data-ad-client="ca-pub-9674270758796450" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"></script>
 </head>
@@ -59,7 +62,7 @@
               </div>
             </div>
           </form>
-      
+          <div class="br">
           <!-- Right navbar links -->
           <ul class="navbar-nav ml-auto">
             <!-- Messages Dropdown Menu -->
@@ -194,45 +197,41 @@
                             </script>
                             <!-- Marker einfügen -->
                             <script>
-
-                        <?php
-                      $link = mysqli_connect("localhost", "luca", "LiviT2005", "praktikumsbewertung");
-                            if($link === false){
-                                #die("ERROR: Could not connect. " . mysqli_connect_error());
-                            }
-                            $sql = "SELECT * FROM Firmen";
-                            if($result = mysqli_query($link, $sql)){
-                                if(mysqli_num_rows($result) > 0){
-                                    /*echo "<table>";
-                                        echo "<tr>";
-                                            echo "<th>id</th>";
-                                            echo "<th>Name</th>";
-                                            echo "<th>Ersteller</th>";
-                                            echo "<th>Erstelldatum</th>";
-                                            echo "<th>&Auml;nderungsdatum</th>";
-                                        echo "</tr>";*/
-                                    while($row = mysqli_fetch_array($result)){
-                                        #echo "<tr><th>";
-                                            echo "var marker = L.marker([" . $row['Laengengrad'] . "," . $row['Breitengrad'] . "]).addTo(Karte);";
-                                            #echo "<td>" . $row['Name'] . "</td>";
-                                            #echo "<td>" . $row['Ersteller'] . "</td>";
-                                            #echo "<td>" . gmdate("Y-m-d\TH:i:s\Z", $row['Erstelldatum']) . "</td>";
-                                            #echo "<td>" . gmdate("Y-m-d\TH:i:s\Z", $row['Aenderungsdatum']) . "</td>";
-                                        #echo "</th></tr>";
+                            var points = [
+                              <?php
+                                require_once "includes/db/config_praktikumsbewertung.php";
+                                $sql = "SELECT * FROM Firmen";
+                                $result = $verbindung->query($sql);
+                                if($result){
+                                    if($result->num_rows > 0){
+                                        $Counter = 1;
+                                        while($row = $result->fetch_assoc()){
+                                          echo '["P' . $Counter . '", ' . $row['Laengengrad'] . ', ' . $row['Breitengrad'] . ', "' . $row['ID'] . '"],';
+                                          #"var marker = L.marker([" . $row['Laengengrad'] . "," . $row['Breitengrad'] . "]).addTo(Karte);";
+                                          $Counter = $Counter + 1;
+                                        }
+                                        echo '["P'.$Counter.'", 48.883598, 10.178100, "https://google.com/"]';
+                                        mysqli_free_result($result);
+                                    } else{
                                     }
-                                    #echo "</table>";
-                                    // Free result set
-                                    mysqli_free_result($result);
                                 } else{
-                                    #echo "No records matching your query were found.";
                                 }
-                            } else{
-                                #echo "ERROR: Could not able to execute $sql. " . mysqli_error($link);
+                                mysqli_close($link);
+                              ?>
+                            ];
+                            var marker = [];
+                            var i;
+                            for (i = 0; i < /*points.length*/10; i++) {
+                                marker[i] = new L.Marker([points[i][1], points[i][2]], {
+                                    win_url: points[i][3],
+                                });
+                                marker[i].addTo(Karte);
+                                marker[i].on('click', onClick);
+                            };
+                            function onClick(e) {
+                              //console.log(this.options.win_url);
+                              window.open(this.options.win_url);
                             }
-                            mysqli_close($link);
-                            echo "var marker = L.marker([48.89203335,10.1925753437142]).addTo(Karte);";
-                            ?>
-
                             </script>
 
                       </div>
@@ -246,5 +245,6 @@
     </section>
 
     </div>
-</body>
+    <i class="fas fa-camera"></i>
+  </body>
 </html>

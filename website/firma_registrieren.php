@@ -1,147 +1,184 @@
-<?php
-
-$name               = $_POST["name"];
-$geschaeftsfuehrer  = $_POST["geschaeftsfuehrer"];
-$land               = $_POST["land"];
-$PLZ                = $_POST["PLZ"];
-$ort                = $_POST["ort"];
-$strasse            = $_POST["strasse"];
-$hausnummer         = $_POST["hausnummer"];
-$email              = $_POST["email"];
-$tel                = $_POST["tel"];
-
-$url = "https://nominatim.openstreetmap.org/search?q=".urlencode($strasse  . " " . $hausnummer . " " . $PLZ . " " . $ort . " " . $land) . "&format=json";
-$ergebniss = get_web_page($url);
-$test = json_decode($ergebniss);
-$laengengrad = $test[0]->{"lat"};
-$breitegrad  = $test[0]->{"lon"};
-
-#echo("<br />");
-#echo("<br />");
-
-require_once "includes/db/config_beantragt.php";
- 
-// Define variables and initialize with empty values
-$name_err = "";
-
-if($_SERVER["REQUEST_METHOD"] == "POST"){
-    // Validate name
-    if(empty($name)){
-        echo "error2";
-        $name_err = "Bitte trage einen Namen ein.";
-    } else{
-        $sql = "SELECT ID FROM Firmen WHERE Name = '".$name."'";
-        $result = $verbindung->query($sql);
-            if($result->num_rows > 0) {
-                $name_err = 1;
-                echo "Dieser Name wird bereits verwendet";
-            }
-    }
-    
-    
-    if($name_err == ""){
-        $timestamp = time(); 
-        $sql = "INSERT INTO Firmen (Erstellt, Name, Geschaeftsfuehrer, EMail, tel, Laengengrad, Breitengrad, Land, PLZ, Ort, Strasse, Hausnummer) VALUES ('" . $timestamp . "','". $name . "','" . $geschaeftsfuehrer . "','" .  $email . "','". $tel . "','" . $laengengrad . "','" . $breitegrad  . "','" . $land  . "','" . $PLZ . "','" . $ort . "','" . $strasse  . "','" . $hausnummer . "')";
-        #if($stmt = mysqli_prepare($link, $sql)){
-            if($verbindung->query($sql) === TRUE){
-                #header("location: login.php");
-            } else{
-                echo "Something went wrong. Please try again later.";
-            }
-        #}
-        #mysqli_stmt_close($stmt);
-    }
-    #mysqli_close($link);
-}
-
+<?php 
+include("includes/login/login_check_inhaber.php");
 ?>
 
 <html>
     <head>
-        <title></title>
-          <!-- Tempusdominus Bbootstrap 4 -->
-          <link rel="stylesheet" href="plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
-        <!-- Required meta tags-->
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-        <!-- Title Page-->
         <title>Firma registrieren</title>
-        <!-- Icons font CSS-->
-        <link href="plugins/mdi-font/css/material-design-iconic-font.min.css" rel="stylesheet" media="all">
-        <link href="plugins/font-awesome-4.7/css/font-awesome.min.css" rel="stylesheet" media="all">
-        <!-- Font special for pages-->
-        <link href="https://fonts.googleapis.com/css?family=Roboto:100,100i,300,300i,400,400i,500,500i,700,700i,900,900i" rel="stylesheet">
-        <!-- plugins CSS-->
-        <link href="plugins/select2/select2.min.css" rel="stylesheet" media="all">
-        <link href="plugins/datepicker/daterangepicker.css" rel="stylesheet" media="all">
-        <!-- Main CSS-->
-        <link href="assets/css/firma_registrieren.css" rel="stylesheet" media="all">
+        <?php $head = file_get_contents("includes/html/head.html"); 
+        echo $head; ?>
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css" />
+        <script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"></script>
     </head>
     <body>
-    <div class="page-wrapper bg-blue p-t-100 p-b-100 font-robo">
-        <div class="wrapper wrapper--w680">
-            <div class="card card-1">
-                <div class="card-heading"></div>
-                <div class="card-body">
-                    <h2 class="title">Firmenregistrierung</h2>
-                    <form action="/firma_registrieren.php" method="post">
-                        <div class="input-group">
-                            <input class="input--style-1" type="text" placeholder="Name" id="name" name="name"              />
-                        </div>
-                        <div class="input-group">
-                            <input class="input--style-1" type="text" placeholder="Gesch&uuml;ftsf&uuml;hrer" id="geschaeftsfuehrer" name="geschaeftsfuehrer" /><br />
-                        </div>
-                        <div class="input-group">
-                            <input class="input--style-1" type="text" placeholder="E-Mail" id="email" name="email" /><br />
-                        </div>
-                        <div class="input-group">
-                            <input class="input--style-1" type="text" placeholder="Telefonnummer" id="tel" name="tel" /><br />
-                        </div>
-                        <div class="input-group">
-                            <select id="land" name="land" class="form-control">
-                                <?php
-                                    $laener_html = file_get_contents('./static/laender.txt', true);
-                                    echo $laener_html;
-                                ?>
-                            </select><br />
-                        </div>
-                        <div class="input-group">
-                            <input type="number" id="PLZ"        name="PLZ"        placeholder="PLZ"          />    
-                        </div>
-                        <div class="input-group">
-                            <input type="text"   id="Ort"        name="ort"        placeholder="Ort"          /> <br />
-                        </div>
-                        <div class="input-group">
-                            <input type="text"   id="Straße"     name="strasse"    placeholder="Stra&szlig;e" />
-                        </div>
-                        <div class="input-group">
-                            <input type="text"   id="Hausnummer" name="hausnummer" placeholder="Hausnummer"   /> <br />
-                        </div>
-                        <!--
-                        <div class="input-group">
-                            <input type="submit" />
-                        </div>
-                        -->
-                        <div class="p-t-20">
-                            <button class="btn btn--radius btn--green" type="submit">Absenden</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>            
-    </form>
+        <section id="container">
+            <?php $navbar = file_get_contents("includes/html/navbar.html"); 
+            echo $navbar; ?>
+            <?php $sidebar = file_get_contents("includes/html/sidebar.html"); 
+            if ($_SESSION["Rechte"] >= 5) {
+                $test4 = str_replace('id="Admin" style="display: none;"', "", $sidebar); 
+                echo  str_replace('%name%', $_SESSION["Benutzername"], $test4);
+            } 
+            if ($_SESSION["Beruf"] == 6 || $_SESSION["Beruf"] == 4) {
+                $test3 = str_replace('id="Beruf" style="display: none;"', "", $sidebar); 
+                echo str_replace('%name%', $_SESSION["Benutzername"], $test3);
+            } 
+            if ($_SESSION["Beruf"] == 6 || $_SESSION["Beruf"] == 4 && $_SESSION["Rechte"] >= 5) {
+                $test1 = str_replace('id="Beruf" style="display: none;"', "", $sidebar); 
+                $test2 = str_replace('id="Admin" style="display: none;"', "", $test1);
+                echo str_replace('%name%', $_SESSION["Benutzername"], $test2);
+            }
+            if ($_SESSION["Beruf"] != 6 || 4 && $_SESSION["Rechte"] < 5) {
+                echo str_replace('%name%', $_SESSION["Benutzername"], $sidebar);
+            }
+            ?>
+            <div class="se-pre-con"></div>
+            <!--main content start-->
+            <section id="main-content">
+                <section class="wrapper">
+                    <div class="row" style="margin-left: 15px; margin-right: 15px">
+                        <?php
+                            session_start();
+                            if($_SERVER["REQUEST_METHOD"] == "POST"){
+                                $name               = $_POST["name"];
+                                $geschaeftsfuehrer  = $_POST["geschaeftsfuehrer"];
+                                $land               = $_POST["land"];
+                                $PLZ                = $_POST["PLZ"];
+                                $ort                = $_POST["ort"];
+                                $strasse            = $_POST["strasse"];
+                                $hausnummer         = $_POST["hausnummer"];
+                                $email              = $_POST["email"];
+                                $tel                = $_POST["tel"];
 
-        <!-- Jquery JS-->
-        <script src="plugins/jquery/jquery.min.js"></script>
-        <!-- plugins JS-->
-        <script src="plugins/select2/select2.min.js"></script>
-        <script src="plugins/datepicker/moment.min.js"></script>
-        <script src="plugins/datepicker/daterangepicker.js"></script>
-        <!-- Main JS-->
-        <script src="assets/js/firma_registrieren.js"></script>
+                                $url = "https://nominatim.openstreetmap.org/search?q=".urlencode($strasse  . " " . $hausnummer . " " . $PLZ . " " . $ort . " " . $land) . "&format=json";
+                                $ergebniss = get_web_page($url);
+                                $test = json_decode($ergebniss);
+                                $laengengrad = $test[0]->{"lat"};
+                                $breitegrad  = $test[0]->{"lon"};
+                                require_once "includes/db/config_beantragt.php";
+                                $name_err = "";
+                                if(empty($name)){
+                                    echo "error2";
+                                    $name_err = "Bitte trage einen Namen ein.";
+                                } else{
+                                    $sql = "SELECT ID FROM Firmen WHERE Name = '".$name."'";
+                                    $result = mysqli_query($db2, $sql);
+                                        if(mysqli_num_rows($result) > 0) {
+                                            $name_err = 1;
+                                            echo "<div style='margin-top: 20px; margin-left: 16px; margin-right: 20px;' class='alert alert-danger alert-dismissable' role='alert'><button type='button' class='close' data-dismiss='alert' aria-hidden='true'>×</button>Dieser Name wird bereits verwendet</div>";
+                                        }
+                                }
+                                if($name_err == ""){
+                                    $timestamp = time(); 
+                                    $sql = "INSERT INTO Firmen (Erstellt, Name, Geschaeftsfuehrer, EMail, tel, Laengengrad, Breitengrad, Land, PLZ, Ort, Strasse, Hausnummer, Ersteller_ID) VALUES ('" . $timestamp . "','". $name . "','" . $geschaeftsfuehrer . "','" .  $email . "','". $tel . "','" . $laengengrad . "','" . $breitegrad  . "','" . $land  . "','" . $PLZ . "','" . $ort . "','" . $strasse  . "','" . $hausnummer . "','" . $_SESSION["ID"] ."')";
+                                    $result = mysqli_query($db2, $sql); 
+                                    if(mysqli_num_rows($result) > 0){
+                                        #header("location: login.php");
+                                    } else{
+                                        echo "<div style='margin-top: 20px; margin-left: 16px; margin-right: 20px;' class='alert alert-success alert-dismissable' role='alert'><button type='button' class='close' data-dismiss='alert' aria-hidden='true'>×</button>Die Firma wurde beantragt</div>";
+                                    }
+                                }
+                            }
+                        ?>
+                        <div class="row" style="margin-left: -10px; margin-right: -10px; margin-bottom: 10px;">
+                            <div class="row mt">
+                                <div class="col-lg-12">
+                                    <div class="form-panel">
+                                        <h4 class="mb"><i class="fa fa-angle-right"></i> Firmendaten eingeben</h4>
+                                        <form class="form-horizontal style-form" method="post">
+                                            <div class="form-group">
+                                                <label class="col-sm-2 col-sm-2 control-label">Name</label>
+                                                <div class="col-sm-10">
+                                                    <input type="text" class="form-control" id="name" name="name"  required>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-2 col-sm-2 control-label">Gesch&auml;ftsf&uuml;hrer</label>
+                                                <div class="col-sm-10">
+                                                    <input type="text" class="form-control" id="geschaeftsfuehrer" name="geschaeftsfuehrer"  required>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-2 col-sm-2 control-label">E-Mail</label>
+                                                <div class="col-sm-10">
+                                                    <input type="text" class="form-control" id="email" name="email"  required>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-2 col-sm-2 control-label">Telefonnummer</label>
+                                                <div class="col-sm-10">
+                                                    <input type="text" class="form-control" id="tel" name="tel"  required>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-2 col-sm-2 control-label">Land</label>
+                                                <div class="col-sm-10">
+                                                    <select class="form-control" id="land" name="land">
+                                                        <?php
+                                                            $laener_html = file_get_contents('./static/laender.txt', true);
+                                                            echo $laener_html;
+                                                        ?>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-2 col-sm-2 control-label">PLZ</label>
+                                                <div class="col-sm-10">
+                                                    <input type="text" class="form-control" id="PLZ" name="PLZ"  required>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-2 col-sm-2 control-label">Ort</label>
+                                                <div class="col-sm-10">
+                                                    <input type="text" class="form-control" id="Ort" name="ort" required>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-2 col-sm-2 control-label">Stra&szlig;e</label>
+                                                <div class="col-sm-10">
+                                                    <input required type="text" class="form-control" id="strasse" name="strasse" required>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-2 col-sm-2 control-label">Hausnummer</label>
+                                                <div class="col-sm-10">
+                                                    <input type="text" class="form-control" id="hausnummer" name="hausnummer" required>
+                                                </div>
+                                            </div>
+                                            <div class="p-t-20">
+                                                <button class="btn btn--radius btn--green" type="submit">Absenden</button>
+                                            </div>
+                                            <!--<div class="form-group">
+                                                <label class="col-sm-2 col-sm-2 control-label">Help text</label>
+                                                <div class="col-sm-10">
+                                                    <input type="text" class="form-control">
+                                                    <span class="help-block">A block of help text that breaks onto a new line and may extend beyond one line.</span>
+                                                </div>
+                                            </div>
+                                        <div class="form-group">
+                                          <label class="col-sm-2 col-sm-2 control-label">Password</label>
+                                          <div class="col-sm-10">
+                                            <input type="password" class="form-control" placeholder="">
+                                          </div>
+                                        </div>-->
+
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                </div>
+            </section>
+        </section>    
+        <?php $footer = file_get_contents("includes/html/footer.html"); 
+        echo $footer; ?>
+        </div>
+        <?php $scripts = file_get_contents("includes/html/javascript.html"); 
+        echo $scripts; ?>
     </body>
 </html>
+
 
 <?php
 /**

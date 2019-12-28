@@ -6,4 +6,7 @@ if(!isset($_SESSION["Eingeloggt"])) {
 } else {
     echo " was ist los?";
 }
-?>
+
+
+?> 
+

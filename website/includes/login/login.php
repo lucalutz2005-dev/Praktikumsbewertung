@@ -14,7 +14,7 @@ $passwort_hash = md5($passwort);
 if(empty($email)){
     $name_err = "Bitte trage deinen Namen ein.";
 } else{
-    $sql = "SELECT ID,Passwort,EMail,Benutzername FROM Benutzer WHERE EMail = '".$email."'";
+    $sql = "SELECT ID,Benutzername,Passwort,EMail,Beruf,Rechte FROM Benutzer WHERE EMail = '".$email."'";
     $result = $verbindung->query($sql);
         if($result->num_rows > 0) {
             $name_err = 1;
@@ -33,10 +33,12 @@ if(empty($email)){
                 $_SESSION["Email"]          = $row["EMail"];
                 $_SESSION["Benutzername"]   = $row["Benutzername"];
                 $_SESSION["Eingeloggt"]     = "1";
+                $_SESSION["Rechte"]         = $row["Rechte"];
+                $_SESSION["Beruf"]         = $row["Beruf"];
                 $_SESSION["tier"]           = "Hund";
                 #echo("<br />");
                 #echo "<script type='text/javascript'>window.top.location='http://website.com/';</script>";
-                header("Location: /secret.php");
+                header("Location: /firmenliste.php");
 
             }
             else {
@@ -93,7 +95,7 @@ if (isset($_POST["reg_email"])) {
                         $_SESSION["Benutzername"]   = $row["Benutzername"];
                         $_SESSION["Eingeloggt"]     = "1";
                         $_SESSION["tier"]           = "Hund";
-                        header("Location: /secret.php");
+                        header("Location: /firmenliste.php");
                     } 
                 }
             }
@@ -110,11 +112,52 @@ if (isset($_POST["reg_email"])) {
         <link rel="stylesheet" href="/librarys/bootstrap/css/bootstrap.css"  type="text/css">
         <link rel="stylesheet" href="/librarys/bootstrap/css/bootstrap.min.css"  type="text/css">
         <link rel="stylesheet" href="/assets/css/login_navbar.css" type="text/css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+        <script src="http://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.js"></script>
+        <style>
+        /* Paste this css to your style sheet file or under head tag */
+        /* This only works with JavaScript, 
+        if it's not present, don't show loader */
+
+        .no-js #loader {
+            display: none;
+        }
+
+        .js #loader {
+            display: block;
+            position: absolute;
+            left: 100px;
+            top: 0;
+        }
+
+        .se-pre-con {
+            position: fixed;
+            left: 0px;
+            top: 0px;
+            width: 100%;
+            height: 100%;
+            z-index: 9999;
+            background: url(/assets/img/Preloader_11.gif) center no-repeat #fff;
+        }
+        </style>
+        <script>
+            //paste this code under the head tag or in a separate js file.
+            // Wait for window load
+            $(window).load(function() {
+                // Animate loader off screen
+                $(".se-pre-con").fadeOut("slow");;
+            });
+        </script>
+          <script data-ad-client="ca-pub-9674270758796450" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+
 	</head>
-	<body style= "padding-top: 65px;">
+    <body style= "padding-top: 65px;">
+    <div class="se-pre-con"></div>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top" role="navigation">
             <div class="container">
-                <a class="navbar-brand" href="#">Brand</a>
+                <a style="font-size: 24px; color: #f2f2f2; float: left; margin-top: 0px; text-transform: uppercase;" class="logo"><b>PRAK<span style="color: #4ECDC4;">TIKAS</span></b></a>
+                <!--<a class="navbar-brand" href="#">Brand</a>-->
+                &nbsp;&nbsp;&nbsp;
                 <button class="navbar-toggler border-0" type="button" data-toggle="collapse" data-target="#exCollapsingNavbar">
                     &#9776;
                 </button>
@@ -225,6 +268,11 @@ if (isset($_POST["reg_email"])) {
             </div>
         </div>      
         <?php echo $meldungen;?>
-
+                            Wir sind Praktikumsbewertung, <br />
+                            ein Dienst zum Bewerten von Praktikas. <br />
+                            Dank unserem Webbsiertem Bewertungssystem k&ouml;nnen sie Problemfei 
+                            ihre Meinung zu einem Praktikums sagen. Und einen Praktikumsplatz 
+                            finden der ihren Berufsvorstellungen entspricht. Zum Versuchen bitte einfach mit 
+                            dee E-Mail test@test.de und dem Passwort test einloggen.
 	</body>
 </html>
