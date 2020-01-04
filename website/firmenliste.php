@@ -174,7 +174,15 @@ include("includes/login/login_check.php");
                     <div class="row mt">
                         <div class="col-lg-12">
                             <div class="content-panel">
-                                <h4><i class="fa fa-angle-right"></i> Praktikumsangebote</h4>
+                                <h4><i class="fa fa-angle-right"></i> Praktikumsangebote von 
+                                <?php 
+                                require_once "includes/db/config_praktikumsbewertung.php";
+                                $ID = $_GET["id"];
+                                $sql = "SELECT Name FROM Firmen WHERE ID = '".$ID."'";
+                                $result = $verbindung->query($sql);
+                                $row = mysqli_fetch_array($result);
+                                echo $row["Name"];
+                                ?></h4>
                                 <h6>Um die verf&uuml;gbaren Praktikumsstellen zu sehen w&auml;hlen sie bitte eine Firma aus.</h6>
                                 <section id="unseen">
                                     <table class="table table-bordered table-striped table-condensed">
@@ -197,9 +205,7 @@ include("includes/login/login_check.php");
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <?php 
-                                                require_once "includes/db/config_praktikumsbewertung.php";
-                                                $ID = $_GET["id"];
+                                            <?php
                                                 #echo $ID;
                                                 $sql = "SELECT ID,NameBeruf,Berufsgruppe,Firmen_ID FROM Angebote WHERE Firmen_ID = '".$ID."'";
                                                 $result = $verbindung->query($sql);
@@ -234,7 +240,11 @@ include("includes/login/login_check.php");
                                                             echo "<td>" . $Bewertung_5/$durchlauf . "</td>";*/
                                                             $summe = $Bewertung_1/$durchlauf + $Bewertung_2/$durchlauf + $Bewertung_3/$durchlauf + $Bewertung_4/$durchlauf + $Bewertung_5/$durchlauf;
                                                             $durchschnitt = ($summe / 5);
-                                                            echo "<td><center>" . $durchschnitt . "</center>1 = <i class='far fa-heart'></i>, 6 = <i class='fas fa-bomb'></i>" . "</td>";
+                                                            echo "<td class='text-nowrap'>" ;
+                                                            for ($i = 1; $i <= $durchschnitt; $i++){
+                                                                echo "<i class='nowrap far fa-heart'>";
+                                                            }
+                                                            echo "</td>";
                                                         }
                                                         
                                                         #echo "<td>" . $row["DurchschnittlicheBewertung"] . "</td>"; 
