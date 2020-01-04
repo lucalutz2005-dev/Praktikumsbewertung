@@ -26,15 +26,47 @@
 <link href="/assets/css/main_style-responsive.css" rel="stylesheet">
 <link href="/assets/css/table-responsive.css" rel="stylesheet">
 <script src="/librarys/lib/chart-master/Chart.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
+
+<!-- Matomo -->
+<script type="text/javascript">
+    var _paq = window._paq || [];
+    /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
+    _paq.push(['trackPageView']);
+    _paq.push(['enableLinkTracking']);
+
+
+    (function() {
+        var u = "//lucalutz.org/matomo/matomo/";
+        _paq.push(['setTrackerUrl', u + 'matomo.php']);
+        _paq.push(['setSiteId', '1']);
+        var d = document,
+            g = d.createElement('script'),
+            s = d.getElementsByTagName('script')[0];
+        g.type = 'text/javascript';
+        g.async = true;
+        g.defer = true;
+        g.src = u + 'matomo.js';
+        s.parentNode.insertBefore(g, s);
+    })();
+</script>
+<!-- End Matomo Code -->
+
 <style>
     /* Paste this css to your style sheet file or under head tag */
     /* This only works with JavaScript, 
 if it's not present, don't show loader */
     
-    .no-js #loader {
+    #loader {
         display: none;
     }
     
+    .no-js #loader {
+        display: none;
+    }
+    /*
     .js #loader {
         display: block;
         position: absolute;
@@ -50,6 +82,15 @@ if it's not present, don't show loader */
         height: 100%;
         z-index: 9999;
         background: url(/assets/img/Preloader_11.gif) center no-repeat #fff;
-    }
+    }*/
 </style>
-<script data-ad-client="ca-pub-9674270758796450" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+
+<script>
+    //$(window).bind(function() {
+    $(".se-pre-con").fadeOut("slow");;
+    //});
+
+    function test() {
+        $(".se-pre-con").fadeOut("slow");
+    }
+</script>

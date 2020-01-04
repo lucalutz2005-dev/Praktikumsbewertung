@@ -9,29 +9,13 @@ include("includes/login/login_check.php");
         echo $head; ?>
             <link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css" />
             <script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"></script>
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@0.68.0/dist/L.Control.Locate.min.css" />
     </head>
     <body>
     <div class="se-pre-con"></div>
     <section id="container">
-        <?php $navbar = file_get_contents("includes/html/navbar.html"); 
-        echo $navbar; ?>
-        <?php $sidebar = file_get_contents("includes/html/sidebar.html"); 
-        if ($_SESSION["Rechte"] >= 5) {
-            $test4 = str_replace('id="Admin" style="display: none;"', "", $sidebar); 
-            echo  str_replace('%name%', $_SESSION["Benutzername"], $test4);
-        } 
-        if ($_SESSION["Beruf"] == 6 || $_SESSION["Beruf"] == 4) {
-            $test3 = str_replace('id="Beruf" style="display: none;"', "", $sidebar); 
-            echo str_replace('%name%', $_SESSION["Benutzername"], $test3);
-        } 
-        if ($_SESSION["Beruf"] == 6 || $_SESSION["Beruf"] == 4 && $_SESSION["Rechte"] >= 5) {
-            $test1 = str_replace('id="Beruf" style="display: none;"', "", $sidebar); 
-            $test2 = str_replace('id="Admin" style="display: none;"', "", $test1);
-            echo str_replace('%name%', $_SESSION["Benutzername"], $test2);
-        }
-        if ($_SESSION["Beruf"] != 6 || 4 && $_SESSION["Rechte"] < 5) {
-            echo str_replace('%name%', $_SESSION["Benutzername"], $sidebar);
-        }
+        <?php
+            include("includes/php/sidebar.php");
         ?>
         <!--main content start-->
         <section id="main-content">
@@ -157,14 +141,31 @@ if(isset($_GET["id"]) && isset($_GET["bewertung"]) && isset($_GET["bewertung1"])
 
                             <div id='meineKarte' style="padding-top: 90px;padding-bottom: 90px;"></div>
                             <!-- OSM-Basiskarte einfügen und zentrieren -->
-                            <script src="/librarys/jquery/jquery.min.js"></script>
+                            <!-- <script src="/librarys/jquery/jquery.min.js"></script> -->
+                            <script src="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@0.68.0/dist/L.Control.Locate.min.js"></script>
                             <script type='text/javascript'>
-                               var Karte = L.map('meineKarte').setView([48.8845159, 10.1878466], 15);
-                               L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                               'attribution':  'Kartendaten &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> Mitwirkende',
-                               'useCache': true
-                               }).addTo(Karte);
+                                var Karte = L.map('meineKarte').setView([48.8845159, 10.1878466], 15);
+                                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                                'attribution':  'Kartendaten &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> Mitwirkende',
+                                'useCache': true
+                                }).addTo(Karte);
+                                L.control.locate(
+                                {
+                                    strings: {
+                                        title: "Orte mich!"
+                                    },
+                                    setView: "always",
+                                    iconElementTag: "i",
+                                    showPopup: false,
+                                    icon: "fas fa-map-marker-alt"
+                                }
+                                ).addTo(Karte);
                             </script>
+                            <style>
+                                i {
+                                    padding: 5px;
+                                }
+                            </style>
                             <!-- Marker einfügen -->
                             <script>
                             var points = [
@@ -172,9 +173,9 @@ if(isset($_GET["id"]) && isset($_GET["bewertung"]) && isset($_GET["bewertung1"])
                                 require_once "includes/db/config_praktikumsbewertung.php";
                                 $sql = "SELECT * FROM Firmen";
                                 $result = $verbindung->query($sql);
+                                $Counter = 1;
                                 if($result){
                                     if($result->num_rows > 0){
-                                        $Counter = 1;
                                         while($row = $result->fetch_assoc()){
                                           echo '["P' . $Counter . '", ' . $row['Laengengrad'] . ', ' . $row['Breitengrad'] . ', "' . $row['ID'] . '", "' . $row["Name"] . '"],';
                                           #"var marker = L.marker([" . $row['Laengengrad'] . "," . $row['Breitengrad'] . "]).addTo(Karte);";
@@ -191,7 +192,7 @@ if(isset($_GET["id"]) && isset($_GET["bewertung"]) && isset($_GET["bewertung1"])
                             ];
                             var marker = [];
                             var i;
-                            for (i = 0; i < 10; i++) {
+                            for (i = 0; i < points.length-1; i++) {
                                 marker[i] = new L.Marker([points[i][1], points[i][2]], {
                                     win_url: points[i][3],
                                     name: points[i][4],
@@ -204,6 +205,7 @@ if(isset($_GET["id"]) && isset($_GET["bewertung"]) && isset($_GET["bewertung1"])
                                     L.closePopup();
                                 }
                                 );
+                                //Karte.removeLayer(marker[<?php echo $Counter ?>]);
                             };
                             function popup(e) {
                                     //open popup;
@@ -250,11 +252,13 @@ if(isset($_GET["id"]) && isset($_GET["bewertung"]) && isset($_GET["bewertung1"])
                                                 <th>Name des Berufs</th>
                                                 <th>Berufsgruppe</th>
                                                 <th class="numeric">Bewertungen</th>
-                                                <th class="numeric"><!--&empty;--> Personalabteilung</th>
+                                                <th class="numeric">Aktionen</th>
+                                                <!--<th class="numeric">--><!--&empty;--><!-- Personalabteilung</th>
                                                 <th class="numeric">Arbeitsumfeld</th>
                                                 <th class="numeric">Individualit&auml;t</th>
                                                 <th class="numeric">Inhalt</th>
                                                 <th class="numeric">Soziale Leistungen</th>
+                                                <th class="numeric">Tags</th>-->
                                                 <!--<th>Tags</th>-->
                                             </tr>
                                         </thead>
@@ -275,7 +279,7 @@ if(isset($_GET["id"]) && isset($_GET["bewertung"]) && isset($_GET["bewertung1"])
                                             </style>
                                             <?php 
                                                 require_once "includes/db/config_praktikumsbewertung.php";
-                                                $sql = "SELECT ID,NameBeruf,Berufsgruppe,Bewertungen,DurchschnittlicheBewertung,Tags FROM Angebote WHERE Firmen_ID = '".$ID."'";
+                                                $sql = "SELECT ID,NameBeruf,Berufsgruppe FROM Angebote WHERE Firmen_ID = '".$ID."'";
                                                 $result = mysqli_query($db1, $sql);
                                                 if(mysqli_num_rows($result) > 0) {
                                                     while($row = mysqli_fetch_array($result)) {
@@ -283,13 +287,13 @@ if(isset($_GET["id"]) && isset($_GET["bewertung"]) && isset($_GET["bewertung1"])
                                                         echo "<td>" . $row["ID"] . "</td>"; 
                                                         echo "<td>" . $row["NameBeruf"] . "</td>"; 
                                                         echo "<td>" . $row["Berufsgruppe"] . "</td>"; 
-                                                        $sql = "SELECT COUNT(ID) FROM Bewertungen;";
+                                                        $sql = "SELECT COUNT(ID) FROM Bewertungen WHERE Firmen_ID = '".$ID."';";
                                                         $result = mysqli_query($db1, $sql);
                                                         $row1 = mysqli_fetch_array($result);
                                                         echo "<td>" . $row1["COUNT(ID)"] . "</td>"; 
-                                                        echo "<td>";
-                                                        $id_button = $row["ID"];
-                                                        echo "<button id='stern01' name='stern01' class='btn stern' onclick='ModifiziereURL(1, ".$id_button.");' value='".$id_button."'><i class='far fa-heart'></i></button>";
+                                                        /*echo "<td>";
+                                                        */
+                                                        /*echo "<button id='stern01' name='stern01' class='btn stern' onclick='ModifiziereURL(1, ".$id_button.");' value='".$id_button."'><i class='far fa-heart'></i></button>";
                                                         echo "<button id='stern02' name='stern02' class='btn stern' onclick='ModifiziereURL(2, ".$id_button.");' value='".$id_button."'><i class='far fa-grin'></i></button>";
                                                         echo "<button id='stern03' name='stern03' class='btn stern' onclick='ModifiziereURL(3, ".$id_button.");' value='".$id_button."'><i class='far fa-meh'></i></button>";
                                                         echo "<button id='stern04' name='stern04' class='btn stern' onclick='ModifiziereURL(4, ".$id_button.");' value='".$id_button."'><i class='far fa-angry'></i></button>";
@@ -322,101 +326,483 @@ if(isset($_GET["id"]) && isset($_GET["bewertung"]) && isset($_GET["bewertung1"])
                                                         echo "<button id='stern23' name='stern08' class='btn stern' onclick='ModifiziereURL4(3, ".$id_button.");' value='".$id_button."'><i class='far fa-meh'></i></button>";
                                                         echo "<button id='stern24' name='stern09' class='btn stern' onclick='ModifiziereURL4(4, ".$id_button.");' value='".$id_button."'><i class='far fa-angry'></i></button>";
                                                         echo "<button id='stern25' name='stern10' class='btn stern' onclick='ModifiziereURL4(5, ".$id_button.");' value='".$id_button."'><i class='fas fa-bomb'></i></button>";
+                                                        echo "</td>";*//*
+                                                        echo "<td>";
+                                                        #echo "<input type='text' />"; */
+                                                        #echo "</td>"; 
+                                                        echo "<td>";
+                                                        #echo "<a href='javascript:OeffnePopup(".$id_button = $row["ID"].");'>Bewertung &ouml;ffnen</a>";
+                                                        echo "<a href='javascript:OeffnePopup(".$row["ID"].")'> Bewertung &ouml;ffnen</a>";
                                                         echo "</td>"; 
-                                                        #echo "<td>" . $row["Tags"] . "</td>"; 
                                                         echo "</tr>";
                                                     }
                                                 }
                                             ?>
                                             </tbody>
                                     </table>
+                                    <script>
+                                        var test1234 = 0;
+                                        function OeffnePopup(test) {
+                                            var Angebot_ID = test;
+                                            test1234 = Angebot_ID;
+                                            //alert("hallo");
+                                            // Get the <span> element that closes the modal
+                                            var span = document.getElementsByClassName("schliessen")[0];
+                                            var modal = document.getElementById("myModal");
+                                            var map = document.getElementById("meineKarte");
+                                            modal.style.display = "block";
+                                            map.style.display = "none";
+
+                                            // When the user clicks on <span> (x), close the modal
+                                            span.onclick = function() {
+                                              modal.style.display = "none";
+                                              map.style.display = "block";
+                                            }
+
+                                            // When the user clicks anywhere outside of the modal, close it
+                                            window.onclick = function(event) {
+                                              if (event.target == modal) {
+                                                modal.style.display = "none";
+                                                map.style.display = "block";
+                                              }
+                                            }
+
+
+                                        }
+                                    </script>
                                 </section>
+                                <!-- Trigger/Open The Modal --><style>
+body {font-family: Arial, Helvetica, sans-serif;}
+
+/* The Modal (background) */
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  padding-top: 100px; /* Location of the box */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Modal Content */
+.modal-content {
+  background-color: #fefefe;
+  margin: auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%;
+}
+
+/* The Close Button */
+.schliessen {
+  color: #aaaaaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.schliessen:hover,
+.schliessen:focus {
+  color: #000;
+  text-decoration: none;
+  cursor: pointer;
+}
+</style>
+
+<!-- The Modal -->
+<div id="myModal" class="modal">
+
+  <!-- Modal content -->
+  <div class="modal-content">
+    <span class="schliessen">&times;</span>
+
+                                <h4><i class="fa fa-angle-right"></i> Praktikumsangebote</h4>
+                                <section id="unseen">
+                                    <table class="table table-bordered table-striped table-condensed">
+                                        <thead>
+                                            <tr>
+                                                <th>Gebiet</th>
+                                                <th class="numeric">1</th>
+                                                <th class="numeric">2</th>
+                                                <th class="numeric">3</th>
+                                                <th class="numeric">4</th>
+                                                <th class="numeric">5</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <style>
+                                                .stern {
+                                                    background-color: transparent;
+                                                }
+                                                .table td.abbreviation {
+                                                    max-width: 30px;
+                                                }
+                                                .table td.abbreviation p {
+                                                    white-space: nowrap;
+                                                    overflow: hidden;
+                                                    text-overflow: ellipsis;
+                                                
+                                                }
+                                            </style>
+                                            <?php 
+                                                /*require_once "includes/db/config_praktikumsbewertung.php";
+                                                $sql = "SELECT ID,NameBeruf,Berufsgruppe FROM Angebote WHERE Firmen_ID = '".$ID."'";
+                                                $result = mysqli_query($db1, $sql);
+                                                if(mysqli_num_rows($result) > 0) {
+                                                    while($row = mysqli_fetch_array($result)) {*/
+                                                        $id_button = 1;
+                                                        echo "<tr>"; 
+                                                        echo "<td> Personalabteilung </td>"; 
+                                                        echo "<td>";
+                                                        echo "<button id='stern01' name='stern01' class='btn stern' onclick='ModifiziereURL_personal(1, ".$id_button.");' value='".$id_button."'><i class='far fa-heart'></i></button>";
+                                                        echo "</td>";
+                                                        echo "<td>";
+                                                        echo "<button id='stern02' name='stern02' class='btn stern' onclick='ModifiziereURL_personal(2, ".$id_button.");' value='".$id_button."'><i class='far fa-grin'></i></button>";
+                                                        echo "</td>";
+                                                        echo "<td>";
+                                                        echo "<button id='stern03' name='stern03' class='btn stern' onclick='ModifiziereURL_personal(3, ".$id_button.");' value='".$id_button."'><i class='far fa-meh'></i></button>";
+                                                        echo "</td>";
+                                                        echo "<td>";
+                                                        echo "<button id='stern04' name='stern04' class='btn stern' onclick='ModifiziereURL_personal(4, ".$id_button.");' value='".$id_button."'><i class='far fa-angry'></i></button>";
+                                                        echo "</td>";
+                                                        echo "<td>";
+                                                        echo "<button id='stern05' name='stern05' class='btn stern' onclick='ModifiziereURL_personal(5, ".$id_button.");' value='".$id_button."'><i class='fas fa-bomb'></i></button>";
+                                                        echo "</td>";
+                                                        echo "</tr>";
+                                                        echo "<tr>"; 
+                                                        echo "<td> Arbeitsumfeld </td>"; 
+                                                        echo "<td>";
+                                                        echo "<button id='stern11' name='stern01' class='btn stern' onclick='ModifiziereURL_arbeitsumfeld(1, ".$id_button.");' value='".$id_button."'><i class='far fa-heart'></i></button>";
+                                                        echo "</td>";
+                                                        echo "<td>";
+                                                        echo "<button id='stern12' name='stern02' class='btn stern' onclick='ModifiziereURL_arbeitsumfeld(2, ".$id_button.");' value='".$id_button."'><i class='far fa-grin'></i></button>";
+                                                        echo "</td>";
+                                                        echo "<td>";
+                                                        echo "<button id='stern13' name='stern03' class='btn stern' onclick='ModifiziereURL_arbeitsumfeld(3, ".$id_button.");' value='".$id_button."'><i class='far fa-meh'></i></button>";
+                                                        echo "</td>";
+                                                        echo "<td>";
+                                                        echo "<button id='stern14' name='stern04' class='btn stern' onclick='ModifiziereURL_arbeitsumfeld(4, ".$id_button.");' value='".$id_button."'><i class='far fa-angry'></i></button>";
+                                                        echo "</td>";
+                                                        echo "<td>";
+                                                        echo "<button id='stern15' name='stern05' class='btn stern' onclick='ModifiziereURL_arbeitsumfeld(5, ".$id_button.");' value='".$id_button."'><i class='fas fa-bomb'></i></button>";
+                                                        echo "</td>";
+                                                        echo "</tr>";
+                                                        echo "<tr>"; 
+                                                        echo "<td> Individualität </td>"; 
+                                                        echo "<td>";
+                                                        echo "<button id='stern21' name='stern01' class='btn stern' onclick='ModifiziereURL_individualitaet(1, ".$id_button.");' value='".$id_button."'><i class='far fa-heart'></i></button>";
+                                                        echo "</td>";
+                                                        echo "<td>";
+                                                        echo "<button id='stern22' name='stern02' class='btn stern' onclick='ModifiziereURL_individualitaet(2, ".$id_button.");' value='".$id_button."'><i class='far fa-grin'></i></button>";
+                                                        echo "</td>";
+                                                        echo "<td>";
+                                                        echo "<button id='stern23' name='stern03' class='btn stern' onclick='ModifiziereURL_individualitaet(3, ".$id_button.");' value='".$id_button."'><i class='far fa-meh'></i></button>";
+                                                        echo "</td>";
+                                                        echo "<td>";
+                                                        echo "<button id='stern24' name='stern04' class='btn stern' onclick='ModifiziereURL_individualitaet(4, ".$id_button.");' value='".$id_button."'><i class='far fa-angry'></i></button>";
+                                                        echo "</td>";
+                                                        echo "<td>";
+                                                        echo "<button id='stern25' name='stern05' class='btn stern' onclick='ModifiziereURL_individualitaet(5, ".$id_button.");' value='".$id_button."'><i class='fas fa-bomb'></i></button>";
+                                                        echo "</td>";
+                                                        echo "</tr>";
+                                                        echo "<tr>"; 
+                                                        echo "<td> Inhalt </td>"; 
+                                                        echo "<td>";
+                                                        echo "<button id='stern31' name='stern01' class='btn stern' onclick='ModifiziereURL_inhalt(1, ".$id_button.");' value='".$id_button."'><i class='far fa-heart'></i></button>";
+                                                        echo "</td>";
+                                                        echo "<td>";
+                                                        echo "<button id='stern32' name='stern02' class='btn stern' onclick='ModifiziereURL_inhalt(2, ".$id_button.");' value='".$id_button."'><i class='far fa-grin'></i></button>";
+                                                        echo "</td>";
+                                                        echo "<td>";
+                                                        echo "<button id='stern33' name='stern03' class='btn stern' onclick='ModifiziereURL_inhalt(3, ".$id_button.");' value='".$id_button."'><i class='far fa-meh'></i></button>";
+                                                        echo "</td>";
+                                                        echo "<td>";
+                                                        echo "<button id='stern34' name='stern04' class='btn stern' onclick='ModifiziereURL_inhalt(4, ".$id_button.");' value='".$id_button."'><i class='far fa-angry'></i></button>";
+                                                        echo "</td>";
+                                                        echo "<td>";
+                                                        echo "<button id='stern35' name='stern05' class='btn stern' onclick='ModifiziereURL_inhalt(5, ".$id_button.");' value='".$id_button."'><i class='fas fa-bomb'></i></button>";
+                                                        echo "</td>";
+                                                        echo "</tr>";
+                                                        echo "<tr>"; 
+                                                        echo "<td> Soziale Leistungen	 </td>"; 
+                                                        echo "<td>";
+                                                        echo "<button id='stern41' name='stern01' class='btn stern' onclick='ModifiziereURL_SozialeLeistungen(1, ".$id_button.");' value='".$id_button."'><i class='far fa-heart'></i></button>";
+                                                        echo "</td>";
+                                                        echo "<td>";
+                                                        echo "<button id='stern42' name='stern02' class='btn stern' onclick='ModifiziereURL_SozialeLeistungen(2, ".$id_button.");' value='".$id_button."'><i class='far fa-grin'></i></button>";
+                                                        echo "</td>";
+                                                        echo "<td>";
+                                                        echo "<button id='stern43' name='stern03' class='btn stern' onclick='ModifiziereURL_SozialeLeistungen(3, ".$id_button.");' value='".$id_button."'><i class='far fa-meh'></i></button>";
+                                                        echo "</td>";
+                                                        echo "<td>";
+                                                        echo "<button id='stern44' name='stern04' class='btn stern' onclick='ModifiziereURL_SozialeLeistungen(4, ".$id_button.");' value='".$id_button."'><i class='far fa-angry'></i></button>";
+                                                        echo "</td>";
+                                                        echo "<td>";
+                                                        echo "<button id='stern45' name='stern05' class='btn stern' onclick='ModifiziereURL_SozialeLeistungen(5, ".$id_button.");' value='".$id_button."'><i class='fas fa-bomb'></i></button>";
+                                                        echo "</td>";
+                                                        echo "</tr>";
+                                                    /*}
+                                                }*/
+                                            ?>
+                                            </tbody>
+                                    </table>
+                                </section>
+                                <button type="button" onclick="Absenden();" class="btn" id="berechnen">Absenden</button>
+
+  </div>
+</div>
+
+<script>
+$('#myModal').appendTo('body');
+// Get the modal
+var modal = document.getElementById("myModal");
+var map = document.getElementById("meineKarte");
+// Get the button that opens the modal
+var btn = document.getElementById("myBtn");
+
+// Get the <span> element that closes the modal
+var span = document.getElementsByClassName("close")[0];
+
+// When the user clicks the button, open the modal 
+btn.onclick = function() {
+    modal.style.display = "block";
+    map.style.display = "none";
+}
+
+// When the user clicks on <span> (x), close the modal
+span.onclick = function() {
+  modal.style.display = "none";
+  map.style.display = "block";
+}
+
+// When the user clicks anywhere outside of the modal, close it
+window.onclick = function(event) {
+  if (event.target == modal) {
+    modal.style.display = "none";
+    map.style.display = "block";
+  }
+}
+</script>
                                 <script>
-                                    /*$(document).on('click', '#stern01', function(e) 
-                                    {
-                                        var angebot = document.getElementById("stern01").value;
-                                        ModifiziereURL(5, angebot);
-                                    });
-                                    $(document).on('click', '#stern02', function(e) 
-                                    {
-                                        var angebot = document.getElementById("stern01").value;
-                                        ModifiziereURL(4, angebot);
-                                    });
-                                    $(document).on('click', '#stern03', function(e) 
-                                    {
-                                        var angebot = document.getElementById("stern01").value;
-                                        ModifiziereURL(3, angebot);
-                                    });
-                                    $(document).on('click', '#stern04', function(e) 
-                                    {
-                                        var angebot = document.getElementById("stern01").value;
-                                        ModifiziereURL(2, angebot);
-                                    });
-                                    $(document).on('click', '#stern05', function(e) 
-                                    {
-                                        var angebot = document.getElementById("stern01").value;
-                                        ModifiziereURL(1, angebot);
-                                    });
-                                    $(document).on('click', '#stern06', function(e) 
-                                    {
-                                        var angebot = document.getElementById("stern01").value;
-                                        ModifiziereURL1(5, e.target.value);
-                                    });
-                                    $(document).on('click', '#stern07', function(e) 
-                                    {
-                                        ModifiziereURL1(4, e.target.value);
-                                    });
-                                    $(document).on('click', '#stern08', function(e) 
-                                    {
-                                        ModifiziereURL1(3, e.target.value);
-                                    });
-                                    $(document).on('click', '#stern09', function(e) 
-                                    {
-                                        ModifiziereURL1(2, e.target.value);
-                                    });
-                                    $(document).on('click', '#stern10', function(e) 
-                                    {
-                                        ModifiziereURL1(1, e.target.value);
-                                    });*/
-                                    function ModifiziereURL(Sterne, Angebot_ID) {
-                                        var path = location.protocol + '//' + location.host + location.pathname;
-                                        var id = getURLParameter('id');
-                                        var final_url = path+"?id="+id+"&bewertung="+Sterne+"&angebot="+Angebot_ID;
-                                        window.location.href = final_url;
+                                    var personal = 0;
+                                    var arbeitsumfeld = 0;
+                                    var individualitaet = 0;
+                                    var inhalt = 0;
+                                    var SozialeLeistungen = 0;
+                                    function ModifiziereURL_personal(Sterne, Angebot_ID) {
+                                        if(Sterne == 1)
+                                        {
+                                            document.getElementById("stern01").style.color = "red";
+                                        }
+                                        else {
+                                            document.getElementById("stern01").style.color = "#797979";
+                                        }
+                                        if(Sterne == 2)
+                                        {
+                                            document.getElementById("stern02").style.color = "red";
+                                        }
+                                        else {
+                                            document.getElementById("stern02").style.color = "#797979";
+                                        }
+                                        if(Sterne == 3)
+                                        {
+                                            document.getElementById("stern03").style.color = "red";
+                                        }
+                                        else {
+                                            document.getElementById("stern03").style.color = "#797979";
+                                        }
+                                        if(Sterne == 4)
+                                        {
+                                            document.getElementById("stern04").style.color = "red";
+                                        }
+                                        else {
+                                            document.getElementById("stern04").style.color = "#797979";
+                                        }
+                                        if(Sterne == 5)
+                                        {
+                                            document.getElementById("stern05").style.color = "red";
+                                        }
+                                        else {
+                                            document.getElementById("stern05").style.color = "#797979";
+                                        }
+                                        personal = Sterne;
                                     }
-                                    function ModifiziereURL1(Sterne1, Angebot_ID) {
-                                        var path = location.protocol + '//' + location.host + location.pathname;
-                                        var id = getURLParameter('id');
-                                        var Sterne = getURLParameter('bewertung');
-                                        var final_url = path+"?id="+id+"&bewertung="+Sterne+"&bewertung1="+Sterne1+"&angebot="+Angebot_ID;
-                                        window.location.href = final_url;
+                                    function ModifiziereURL_arbeitsumfeld(Sterne, Angebot_ID) {
+                                        if(Sterne == 1)
+                                        {
+                                            document.getElementById("stern11").style.color = "red";
+                                        }
+                                        else {
+                                            document.getElementById("stern11").style.color = "#797979";
+                                        }
+                                        if(Sterne == 2)
+                                        {
+                                            document.getElementById("stern12").style.color = "red";
+                                        }
+                                        else {
+                                            document.getElementById("stern12").style.color = "#797979";
+                                        }
+                                        if(Sterne == 3)
+                                        {
+                                            document.getElementById("stern13").style.color = "red";
+                                        }
+                                        else {
+                                            document.getElementById("stern13").style.color = "#797979";
+                                        }
+                                        if(Sterne == 4)
+                                        {
+                                            document.getElementById("stern14").style.color = "red";
+                                        }
+                                        else {
+                                            document.getElementById("stern14").style.color = "#797979";
+                                        }
+                                        if(Sterne == 5)
+                                        {
+                                            document.getElementById("stern15").style.color = "red";
+                                        }
+                                        else {
+                                            document.getElementById("stern15").style.color = "#797979";
+                                        }
+                                        arbeitsumfeld = Sterne;
                                     }
-                                    function ModifiziereURL2(Sterne2, Angebot_ID) {
-                                        var path = location.protocol + '//' + location.host + location.pathname;
-                                        var id = getURLParameter('id');
-                                        var Sterne = getURLParameter('bewertung');
-                                        var Sterne1 = getURLParameter('bewertung1');
-                                        var final_url = path+"?id="+id+"&bewertung="+Sterne+"&bewertung1="+Sterne1+"&bewertung2="+Sterne2+"&angebot="+Angebot_ID;
-                                        window.location.href = final_url;
+                                    function ModifiziereURL_individualitaet(Sterne, Angebot_ID) {
+                                        if(Sterne == 1)
+                                        {
+                                            document.getElementById("stern21").style.color = "red";
+                                        }
+                                        else {
+                                            document.getElementById("stern21").style.color = "#797979";
+                                        }
+                                        if(Sterne == 2)
+                                        {
+                                            document.getElementById("stern22").style.color = "red";
+                                        }
+                                        else {
+                                            document.getElementById("stern22").style.color = "#797979";
+                                        }
+                                        if(Sterne == 3)
+                                        {
+                                            document.getElementById("stern23").style.color = "red";
+                                        }
+                                        else {
+                                            document.getElementById("stern23").style.color = "#797979";
+                                        }
+                                        if(Sterne == 4)
+                                        {
+                                            document.getElementById("stern24").style.color = "red";
+                                        }
+                                        else {
+                                            document.getElementById("stern24").style.color = "#797979";
+                                        }
+                                        if(Sterne == 5)
+                                        {
+                                            document.getElementById("stern25").style.color = "red";
+                                        }
+                                        else {
+                                            document.getElementById("stern25").style.color = "#797979";
+                                        }
+                                        individualitaet = Sterne;
                                     }
-                                    function ModifiziereURL3(Sterne3, Angebot_ID) {
+                                    function ModifiziereURL_inhalt(Sterne, Angebot_ID) {
+                                        if(Sterne == 1)
+                                        {
+                                            document.getElementById("stern31").style.color = "red";
+                                        }
+                                        else {
+                                            document.getElementById("stern31").style.color = "#797979";
+                                        }
+                                        if(Sterne == 2)
+                                        {
+                                            document.getElementById("stern32").style.color = "red";
+                                        }
+                                        else {
+                                            document.getElementById("stern32").style.color = "#797979";
+                                        }
+                                        if(Sterne == 3)
+                                        {
+                                            document.getElementById("stern33").style.color = "red";
+                                        }
+                                        else {
+                                            document.getElementById("stern33").style.color = "#797979";
+                                        }
+                                        if(Sterne == 4)
+                                        {
+                                            document.getElementById("stern34").style.color = "red";
+                                        }
+                                        else {
+                                            document.getElementById("stern34").style.color = "#797979";
+                                        }
+                                        if(Sterne == 5)
+                                        {
+                                            document.getElementById("stern35").style.color = "red";
+                                        }
+                                        else {
+                                            document.getElementById("stern35").style.color = "#797979";
+                                        }
+                                        inhalt = Sterne;
+                                    }
+                                    function ModifiziereURL_SozialeLeistungen(Sterne, Angebot_ID) {
+                                        if(Sterne == 1)
+                                        {
+                                            document.getElementById("stern41").style.color = "red";
+                                        }
+                                        else {
+                                            document.getElementById("stern41").style.color = "#797979";
+                                        }
+                                        if(Sterne == 2)
+                                        {
+                                            document.getElementById("stern42").style.color = "red";
+                                        }
+                                        else {
+                                            document.getElementById("stern42").style.color = "#797979";
+                                        }
+                                        if(Sterne == 3)
+                                        {
+                                            document.getElementById("stern43").style.color = "red";
+                                        }
+                                        else {
+                                            document.getElementById("stern43").style.color = "#797979";
+                                        }
+                                        if(Sterne == 4)
+                                        {
+                                            document.getElementById("stern44").style.color = "red";
+                                        }
+                                        else {
+                                            document.getElementById("stern44").style.color = "#797979";
+                                        }
+                                        if(Sterne == 5)
+                                        {
+                                            document.getElementById("stern45").style.color = "red";
+                                        }
+                                        else {
+                                            document.getElementById("stern45").style.color = "#797979";
+                                        }
+                                        SozialeLeistungen = Sterne;
+                                    }
+                                    function Absenden() {
+                                        if(personal > 0 && personal < 6 && arbeitsumfeld > 0 && arbeitsumfeld < 6 && individualitaet > 0 && individualitaet < 6 && inhalt > 0 && inhalt < 6 && SozialeLeistungen > 0 && SozialeLeistungen < 6)
+                                        {
                                         var path = location.protocol + '//' + location.host + location.pathname;
                                         var id = getURLParameter('id');
-                                        var Sterne = getURLParameter('bewertung');
-                                        var Sterne1 = getURLParameter('bewertung1');
-                                        var Sterne2 = getURLParameter('bewertung2');
-                                        var final_url = path+"?id="+id+"&bewertung="+Sterne+"&bewertung1="+Sterne1+"&bewertung2="+Sterne2+"&bewertung3="+Sterne3+"&angebot="+Angebot_ID;
+                                        var final_url = path+"?id="+id+"&bewertung="+personal+"&bewertung1="+arbeitsumfeld+"&bewertung2="+individualitaet+"&bewertung3="+inhalt+"&bewertung4="+SozialeLeistungen+"&angebot="+window.test1234;
                                         window.location.href = final_url;
+                                        }
+                                        //window.location.href = final_url;
                                     }
                                     function ModifiziereURL4(Sterne4, Angebot_ID) {
-                                        var path = location.protocol + '//' + location.host + location.pathname;
+                                        /*var path = location.protocol + '//' + location.host + location.pathname;
                                         var id = getURLParameter('id');
                                         var Sterne = getURLParameter('bewertung');
                                         var Sterne1 = getURLParameter('bewertung1');
                                         var Sterne2 = getURLParameter('bewertung2');
                                         var Sterne3 = getURLParameter('bewertung3');
                                         var final_url = path+"?id="+id+"&bewertung="+Sterne+"&bewertung1="+Sterne1+"&bewertung2="+Sterne2+"&bewertung3="+Sterne3+"&bewertung4="+Sterne4+"&angebot="+Angebot_ID;
-                                        window.location.href = final_url;
+                                        window.location.href = final_url;*/
                                     }
 
                                     function getURLParameter(name) {

@@ -6,11 +6,11 @@
 /* Create two equal columns that floats next to each other */
 
 .column {
-    float: left;
-    width: 47%;
+    float: center;
+    width: 80%;
     padding: 10px;
-    height: 300px;
-    margin-left: 25px;
+    height: 200px;
+    margin-left: 10%;
     margin-right: 10px;
     margin-top: 10px;
     /* Should be removed. Only for demonstration */

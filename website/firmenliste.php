@@ -9,30 +9,14 @@ include("includes/login/login_check.php");
         echo $head; ?>
             <link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css" />
             <script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"></script>
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@0.68.0/dist/L.Control.Locate.min.css" />
     </head>
     <body>
     <div class="se-pre-con"></div>
     <section id="container">
-        <?php $navbar = file_get_contents("includes/html/navbar.html"); 
-        echo $navbar; ?>
-        <?php $sidebar = file_get_contents("includes/html/sidebar.html"); 
-        if ($_SESSION["Rechte"] >= 5) {
-            $test4 = str_replace('id="Admin" style="display: none;"', "", $sidebar); 
-            echo  str_replace('%name%', $_SESSION["Benutzername"], $test4);
-        } 
-        if ($_SESSION["Beruf"] == 6 || $_SESSION["Beruf"] == 4) {
-            $test3 = str_replace('id="Beruf" style="display: none;"', "", $sidebar); 
-            echo str_replace('%name%', $_SESSION["Benutzername"], $test3);
-        } 
-        if ($_SESSION["Beruf"] == 6 || $_SESSION["Beruf"] == 4 && $_SESSION["Rechte"] >= 5) {
-            $test1 = str_replace('id="Beruf" style="display: none;"', "", $sidebar); 
-            $test2 = str_replace('id="Admin" style="display: none;"', "", $test1);
-            echo str_replace('%name%', $_SESSION["Benutzername"], $test2);
-        }
-        if ($_SESSION["Beruf"] != 6 || 4 && $_SESSION["Rechte"] < 5) {
-            echo str_replace('%name%', $_SESSION["Benutzername"], $sidebar);
-        }
-        ?>
+            <?php
+            include("includes/php/sidebar.php");
+            ?>
         <!--main content start-->
         <section id="main-content">
             <section class="wrapper">
@@ -87,7 +71,7 @@ include("includes/login/login_check.php");
                             <div class="message-header">
                                 <h5>Firmen Karte</h5>
                             </div>
-
+                            <script src="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@0.68.0/dist/L.Control.Locate.min.js"></script>
                             <div id='meineKarte' style="padding-top: 90px;padding-bottom: 90px;"></div>
                             <!-- OSM-Basiskarte einfügen und zentrieren -->
                             <script src="/librarys/jquery/jquery.min.js"></script>
@@ -97,7 +81,23 @@ include("includes/login/login_check.php");
                                'attribution':  'Kartendaten &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> Mitwirkende',
                                'useCache': true
                                }).addTo(Karte);
+                               L.control.locate(
+                                {
+                                    strings: {
+                                        title: "Orte mich!"
+                                    },
+                                    setView: "always",
+                                    iconElementTag: "i",
+                                    showPopup: false,
+                                    icon: "fas fa-map-marker-alt"
+                                }
+                                ).addTo(Karte);
                             </script>
+                            <style>
+                                i {
+                                    padding: 5px;
+                                }
+                            </style>
                             <!-- Marker einfügen -->
                             <script>
                             var points = [
@@ -124,7 +124,7 @@ include("includes/login/login_check.php");
                             ];
                             var marker = [];
                             var i;
-                            for (i = 0; i < 10; i++) {
+                            for (i = 0; i < points.length-1; i++) {
                                 marker[i] = new L.Marker([points[i][1], points[i][2]], {
                                     win_url: points[i][3],
                                     name: points[i][4],
@@ -192,7 +192,7 @@ include("includes/login/login_check.php");
                                                 <th class="numeric">Inhalt</th>
                                                 <th class="numeric">Soziale Leistungen</th>-->
 
-                                                <th>Tags</th>
+                                                <!--<th>Tags</th>-->
                                                 <th>Bewerbungsdaten</th>
                                             </tr>
                                         </thead>
@@ -201,7 +201,7 @@ include("includes/login/login_check.php");
                                                 require_once "includes/db/config_praktikumsbewertung.php";
                                                 $ID = $_GET["id"];
                                                 #echo $ID;
-                                                $sql = "SELECT ID,NameBeruf,Berufsgruppe,Bewertungen,DurchschnittlicheBewertung,Tags,Firmen_ID FROM Angebote WHERE Firmen_ID = '".$ID."'";
+                                                $sql = "SELECT ID,NameBeruf,Berufsgruppe,Firmen_ID FROM Angebote WHERE Firmen_ID = '".$ID."'";
                                                 $result = $verbindung->query($sql);
                                                 if($result->num_rows > 0) {
                                                     while($row = $result->fetch_assoc()) {
@@ -238,7 +238,7 @@ include("includes/login/login_check.php");
                                                         }
                                                         
                                                         #echo "<td>" . $row["DurchschnittlicheBewertung"] . "</td>"; 
-                                                        echo "<td>" . $row["Tags"] . "</td>"; 
+                                                        #echo "<td>" . $row["Tags"] . "</td>"; 
                                                         $sql = "SELECT EMail FROM Firmen WHERE ID = '".$row["Firmen_ID"]."';";
                                                         $result = mysqli_query($db1, $sql);
                                                         $row1 = mysqli_fetch_array($result);

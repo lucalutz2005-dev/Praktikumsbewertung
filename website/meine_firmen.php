@@ -20,6 +20,11 @@ include("includes/login/login_check_inhaber.php");
             <!--main content start-->
             <section id="main-content">
             
+            <script>
+                document.documentElement.style.overflow = 'hidden';  // firefox, chrome
+                document.body.scroll = "no"; // ie only
+            </script>
+
                 <section class="wrapper">
                     <div class="row">
   <div class="row">
@@ -29,6 +34,10 @@ include("includes/login/login_check_inhaber.php");
   </div>
   <div class="column" style="background-color:#FFF;">
     <h2><a href="praktikum_zustimmen.php" style="color: #404040;">Praktikas zustimmen</a></h2>
+    <p></p>
+  </div>
+  <div class="column" style="background-color:#4ECDC4;">
+    <h2><a href="praktikum_anlegen.php" style="color: white;">Praktika erstellen</a></h2>
     <p></p>
   </div>
 </div>
